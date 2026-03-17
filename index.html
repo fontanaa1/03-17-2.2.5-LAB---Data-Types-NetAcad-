@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 2.2.5 – Contact List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0a0612;
+      --surface:  #110d1e;
+      --card:     #1a1330;
+      --purple:   #7c3aed;
+      --violet:   #a855f7;
+      --neon:     #c084fc;
+      --pink:     #e879f9;
+      --cyan:     #818cf8;
+      --text:     #ede9fe;
+      --muted:    #7c6fa0;
+      --border:   rgba(168, 85, 247, 0.25);
+      --glow:     rgba(192, 132, 252, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── BACKGROUND GRID ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── FLOATING ORBS ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(124,58,237,0.25), transparent 70%);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(232,121,249,0.2), transparent 70%);
+      bottom: -80px; right: -80px;
+      animation-delay: -5s;
+    }
+    .orb-3 {
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(129,140,248,0.2), transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      animation-delay: -3s;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.1); }
+    }
+
+    /* ── WRAPPER ── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.7s ease both;
+    }
+    .lab-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(124,58,237,0.2);
+      border: 1px solid rgba(168,85,247,0.4);
+      color: var(--neon);
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      padding: 0.3rem 0.9rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .lab-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--neon);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--neon);
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, #a855f7 0%, #e879f9 50%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      margin-bottom: 1.75rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .section:nth-child(1) { animation-delay: 0.15s; }
+    .section:nth-child(2) { animation-delay: 0.30s; }
+    .section:nth-child(3) { animation-delay: 0.45s; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+    .section-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .icon-first { background: rgba(124,58,237,0.3); border: 1px solid rgba(124,58,237,0.5); }
+    .icon-last  { background: rgba(232,121,249,0.2); border: 1px solid rgba(232,121,249,0.4); }
+    .icon-all   { background: rgba(129,140,248,0.2); border: 1px solid rgba(129,140,248,0.4); }
+
+    .section-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .label-first { color: var(--violet); }
+    .label-last  { color: var(--pink); }
+    .label-all   { color: var(--cyan); }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── HIGHLIGHT CARD ── */
+    .highlight-card {
+      position: relative;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .highlight-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--purple), transparent, var(--pink));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .highlight-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--glow);
+    }
+
+    .card-first::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(to bottom, var(--purple), var(--violet));
+      border-radius: 12px 0 0 12px;
+    }
+    .card-last::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(to bottom, var(--pink), var(--neon));
+      border-radius: 12px 0 0 12px;
+    }
+
+    .contact-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
+    }
+    .card-first .contact-name { color: var(--violet); }
+    .card-last  .contact-name { color: var(--pink); }
+
+    .contact-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .meta-row span { color: var(--text); }
+    .meta-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-phone { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+    .dot-email { background: var(--neon); box-shadow: 0 0 6px var(--neon); }
+
+    /* ── ALL LIST ── */
+    .all-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .all-list::-webkit-scrollbar { width: 4px; }
+    .all-list::-webkit-scrollbar-track { background: transparent; }
+    .all-list::-webkit-scrollbar-thumb {
+      background: rgba(168,85,247,0.4);
+      border-radius: 999px;
+    }
+
+    .all-item {
+      background: rgba(26, 19, 48, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      transition: background 0.2s, border-color 0.2s;
+      cursor: default;
+    }
+    .all-item:hover {
+      background: rgba(124,58,237,0.12);
+      border-color: rgba(168,85,247,0.5);
+    }
+
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(124,58,237,0.4), rgba(232,121,249,0.3));
+      border: 1px solid rgba(168,85,247,0.35);
+      color: var(--neon);
+    }
+
+    .item-info { flex: 1; min-width: 0; }
+    .item-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.03em;
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-detail {
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-index {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      color: rgba(168,85,247,0.5);
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: rgba(124, 111, 160, 0.4);
+      animation: fadeUp 0.6s ease 0.6s both;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="lab-tag">LAB 2.2.5 &nbsp;·&nbsp; DATA TYPES</div>
+      <h1>LISTA DE<br>CONTATOS</h1>
+      <p class="subtitle">Array &nbsp;·&nbsp; Object &nbsp;·&nbsp; push() &nbsp;·&nbsp; length</p>
+    </div>
+
+    <!-- PRIMEIRO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-first">🥇</div>
+        <span class="section-label label-first">Primeiro Contato</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="highlight-card card-first">
+        <div class="contact-name" id="fn-name"></div>
+        <div class="contact-meta">
+          <div class="meta-row"><div class="meta-dot dot-phone"></div><span id="fn-phone"></span></div>
+          <div class="meta-row"><div class="meta-dot dot-email"></div><span id="fn-email"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÚLTIMO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-last">🔚</div>
+        <span class="section-label label-last">Último Contato</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="highlight-card card-last">
+        <div class="contact-name" id="ln-name"></div>
+        <div class="contact-meta">
+          <div class="meta-row"><div class="meta-dot dot-phone"></div><span id="ln-phone"></span></div>
+          <div class="meta-row"><div class="meta-dot dot-email"></div><span id="ln-email"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODOS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-all">📋</div>
+        <span class="section-label label-all">Todos os Contatos</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="all-list" id="todos"></div>
+    </div>
+
+    <div class="footer">© 2025 &nbsp;·&nbsp; JS LAB SERIES &nbsp;·&nbsp; DATA TYPES</div>
+
+  </div>
+
+  <script>
+    // ── 1. Array de objetos ──────────────────────────────────────
+    let contacts = [
+      { name: "Maxwell Wright",  phone: "(0191) 719 6495", email: "Curabitur.egestas.nunc@nonummyac.co.uk" },
+      { name: "Raja Villarreal", phone: "0866 398 2895",   email: "posuere.vulputate@sed.com"              },
+      { name: "Helen Richards",  phone: "0800 1111",       email: "libero@convallis.edu"                   }
+    ];
+
+    // ── 2. push() ────────────────────────────────────────────────
+    contacts.push({
+      name:  "Maisie Haley",
+      phone: "0913 531 3030",
+      email: "risus.Quisque@urna.ca"
+    });
+
+    // ── 3. Primeiro e último ──────────────────────────────────────
+    const first = contacts[0];
+    const last  = contacts[contacts.length - 1];
+
+    console.log(first.name + " / " + first.phone + " / " + first.email);
+    console.log(last.name  + " / " + last.phone  + " / " + last.email);
+
+    // ── Popular UI ────────────────────────────────────────────────
+    document.getElementById('fn-name').textContent  = first.name;
+    document.getElementById('fn-phone').textContent = first.phone;
+    document.getElementById('fn-email').textContent = first.email;
+
+    document.getElementById('ln-name').textContent  = last.name;
+    document.getElementById('ln-phone').textContent = last.phone;
+    document.getElementById('ln-email').textContent = last.email;
+
+    const lista = document.getElementById('todos');
+    contacts.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'all-item';
+      div.style.animationDelay = (0.5 + i * 0.08) + 's';
+      div.innerHTML = `
+        <div class="avatar">${c.name.charAt(0)}</div>
+        <div class="item-info">
+          <div class="item-name">${c.name}</div>
+          <div class="item-detail">${c.phone} &nbsp;·&nbsp; ${c.email}</div>
+        </div>
+        <div class="item-index">[${i}]</div>
+      `;
+      lista.appendChild(div);
+    });
+  </script>
+
+</body>
+</html>
